@@ -1,4 +1,648 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>黑潮海盜的淨海密令｜實境解謎</title>
+<style>
+  :root {
+    --navy: #0b2545;
+    --ocean: #134074;
+    --teal: #1d7874;
+    --gold: #f4b942;
+    --parchment: #fdf8ee;
+    --coral: #d9534f;
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --text: #1e293b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  body { background-color: #0f172a; display: flex; justify-content: center; min-height: 100vh; color: var(--text); }
+  
+  .app-container {
+    width: 100%;
+    max-width: 430px;
+    background-color: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    padding-bottom: 78px;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--navy), var(--ocean));
+    color: white;
+    padding: 16px;
+    border-bottom-left-radius: 22px;
+    border-bottom-right-radius: 22px;
+    box-shadow: 0 4px 14px rgba(11,37,69,0.25);
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .team-badge { background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .reset-btn { background: rgba(217,83,79,0.9); border: none; color: white; padding: 4px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+  
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .stat-box { background: rgba(255,255,255,0.1); padding: 8px 4px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.15); }
+  .stat-val { font-size: 18px; font-weight: 800; color: var(--gold); }
+  .stat-label { font-size: 11px; opacity: 0.9; margin-top: 2px; }
+
+  main { padding: 16px; flex: 1; overflow-y: auto; }
+  .section { display: none; animation: fadeIn 0.25s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
+  .card-title { font-size: 15px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 6px; }
+  
+  .help-btn {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #e0f2fe; color: var(--ocean);
+    border: 1.5px solid var(--ocean);
+    font-weight: 800; font-size: 13px;
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .help-btn:active { background: var(--ocean); color: white; transform: scale(0.92); }
+
+  .puzzle-card { border-left: 5px solid var(--ocean); }
+  .puzzle-card.solved { border-left: 5px solid var(--teal); background: #f8fafc; }
+  .riddle-box {
+    background: var(--parchment); border: 1px solid #e6d5b8;
+    padding: 12px; border-radius: 10px; font-size: 13px; line-height: 1.6;
+    color: #4a3b2c; margin: 8px 0;
+  }
+  .status-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+  .tag-lock { background: #fee2e2; color: #b91c1c; }
+  .tag-open { background: #ccfbf1; color: #0f766e; }
+
+  .input-group { display: flex; gap: 8px; margin-top: 8px; }
+  input[type="text"], select {
+    flex: 1; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px;
+    font-size: 14px; outline: none; background: white;
+  }
+  input[type="text"]:focus { border-color: var(--ocean); }
+
+  .btn {
+    width: 100%; padding: 11px; border: none; border-radius: 10px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    background: var(--ocean); color: white; transition: 0.15s; margin-top: 8px;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-gold { background: var(--gold); color: #1e293b; font-weight: 700; }
+  .btn-teal { background: var(--teal); color: white; }
+  .btn-coral { background: var(--coral); color: white; }
+
+  .unlocked-reward-box {
+    background: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 10px;
+    padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #065f46; line-height: 1.5;
+  }
+
+  .voucher-item {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 2px dashed #f59e0b; border-radius: 12px; padding: 14px;
+    margin-bottom: 10px; position: relative; overflow: hidden;
+  }
+  .voucher-item.used {
+    background: #f1f5f9; border-color: #94a3b8; opacity: 0.75;
+  }
+  .stamp-used {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%) rotate(-12deg);
+    border: 3px solid #dc2626; color: #dc2626; font-weight: 900; font-size: 16px;
+    padding: 4px 10px; border-radius: 6px; letter-spacing: 2px;
+  }
+
+  .sup-card-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .fate-card { padding: 12px; border-radius: 12px; text-align: center; border: 2px solid #cbd5e1; background: #f8fafc; }
+  .fate-card.buff { border-color: var(--teal); background: #f0fdfa; }
+  .fate-card.debuff { border-color: var(--coral); background: #fef2f2; }
+  .band-tag { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 6px; color: white; }
+
+  .cert-box {
+    background: linear-gradient(135deg, #fffbeb, #fde68a);
+    border: 4px double #d97706; border-radius: 16px; padding: 20px; text-align: center;
+  }
+  .cert-title { font-size: 20px; font-weight: 900; color: var(--navy); margin-top: 4px; }
+  .cert-score { font-size: 34px; font-weight: 900; color: var(--coral); margin: 8px 0; }
+
+  nav {
+    position: fixed; bottom: 0; width: 100%; max-width: 430px;
+    background: white; display: grid; grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid #cbd5e1; padding: 6px 0; z-index: 10;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px; color: #64748b; cursor: pointer; padding: 4px; border: none; background: none;
+  }
+  .nav-item.active { color: var(--ocean); font-weight: 800; }
+  .nav-icon { font-size: 20px; margin-bottom: 2px; }
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(15,23,42,0.7);
+    display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: white; width: 100%; max-width: 360px; border-radius: 16px; padding: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: popIn 0.2s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-title { font-size: 16px; font-weight: 800; color: var(--navy); margin-bottom: 10px; }
+  .modal-body { font-size: 13.5px; line-height: 1.6; color: #334155; margin-bottom: 16px; }
+
+  details.demo-cheat {
+    font-size: 11.5px; color: #475569; background: #e2e8f0;
+    padding: 10px 12px; border-radius: 10px; margin-top: 12px; line-height: 1.6;
+  }
+  details.demo-cheat summary { font-weight: bold; cursor: pointer; color: var(--navy); }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <div class="header-top">
+      <div class="team-badge" onclick="editTeamName()">
+        🏴‍☠️ <span id="teamNameDisplay">黑潮海賊團</span> ✏️
+      </div>
+      <button class="reset-btn" onclick="resetDemo()">重置進度</button>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-val" id="goldDisplay">0</div>
+        <div class="stat-label">💰 海盜金幣</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val"><span id="solvedCountDisplay">0</span>/6</div>
+        <div class="stat-label">🧩 解開密令</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="voucherCountDisplay">0</div>
+        <div class="stat-label">🎟️ 可用折價券</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="tab-puzzles" class="section active">
+      <div class="card" style="background:#f0f9ff; border-color:#bae6fd;">
+        <div class="card-header" style="border-bottom-color:#bae6fd;">
+          <div class="card-title">🧭 實境解謎總則（自由探索）</div>
+          <button class="help-btn" onclick="showHelp('global')">?</button>
+        </div>
+        <p style="font-size:12.5px; color:#0369a1; line-height:1.5;">
+          走訪各景點時請<strong>觀察現場環境與解說牌</strong>，輸入謎題答案解鎖密令後，即可找領隊或合作店家領取「金幣/折價券兌換碼」！
+        </p>
+      </div>
+
+      <div id="puzzleListContainer"></div>
+    </div>
+
+    <div id="tab-bag" class="section">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🔑 關主 / 店家兌換碼輸入</div>
+          <button class="help-btn" onclick="showHelp('redeem')">?</button>
+        </div>
+        <p style="font-size:12px; color:#64748b;">完成現場任務（如自備環保杯、拍照核對、店家消費）後，請向工作人員或店家索取專屬兌換碼：</p>
+        <div class="input-group">
+          <input type="text" id="staffCodeInput" placeholder="輸入兌換碼 (如 ECO50)">
+          <button class="btn btn-gold" style="width:auto; margin-top:0; padding:0 16px;" onclick="redeemStaffCode()">領取獎勵</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🎟️ 我的合作店家折價券</div>
+          <button class="help-btn" onclick="showHelp('voucher')">?</button>
+        </div>
+        <div id="voucherContainer">
+          <p style="font-size:12px; color:#94a3b8; text-align:center; padding:12px 0;">尚未獲得折價券，解開謎題並找工作人員領取兌換碼吧！</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📖 已解鎖的航海日誌（生態知識）</div>
+請謹慎使用程式碼。
+?
+
+
+解開實境謎題後，海洋生態與在地文化知識將收錄於此。
+
+
+🏄‍♂️ 杉原灣 SUP 占卜與禁忌
+?
+
+下水前抽取專屬命運卡，並向教練領取對應顏色防水手環，手機鎖入防水袋不上船：
+✨ 占卜 Buff（主動技）
+尚未抽取
+點擊下方按鈕抽卡
+無手環
+
+
+⚠️ 海上禁忌（Debuff）
+尚未抽取
+點擊下方按鈕抽卡
+無手環
+
+🎲 抽取本場占卜與禁忌卡
+👁️ 海上互相監督規則：
+
+敵隊只要抓到你違反禁忌，大喊「海神抓到了！」並由隨行教練在防水板畫記，上岸結算時將被搶走 50 金幣！
+
+⚓ 上岸戰績結算（教練核對）
+?
+
+上岸盥洗後，依教練「防水寫字板」紀錄輸入結算碼同步金幣：
+
+
+同步
+
+
+📜 行動承諾與結業證書
+?
+
+選擇一項你願意在旅程結束後落實的日常永續行動：
+
+🥤 自備環保杯與餐具，每週減少 3 個一次性容器
+🐟 吃海鮮遵守底食原則，優先選擇鬼頭刀等永續魚種
+🏨 外出旅遊自備牙刷毛巾，優先入住認證環保旅宿
+臺東東海岸環境教育小旅行
+🏴‍☠️ 永續海賊王認證書
+茲認證 黑潮海賊團
+完成淨海實境解謎任務，累計獲得海盜金幣：
+0 枚
+
+🌱 我的減塑行動承諾：
+
+自備環保杯與餐具，每週減少 3 個一次性容器
+
+長按螢幕截圖即可保存分享！
+
+
+💡 簡報 Demo 專用小抄（點擊展開所有謎題答案與兌換碼）
+
+【6大實境謎題答案】
+
+1. 富山護漁區：海參
+
+2. 富岡漁港：鬼頭刀
+
+3. 富岡如意娘娘廟：媽祖（或 450）
+
+4. 加路蘭遊憩區：漂流木
+
+5. 杉原灣SUP：救生衣
+
+6. 小野柳地質公園：豆腐岩
+
+
+【工作人員 / 店家兌換碼】
+
+• 報到自備環保杯：ECO50（+50金幣）
+
+• 富山拍照核對成功：FISH150（+150金幣）
+
+• 富岡喊魚/店家互動：TICKET50（獲得 50元伴手禮折價券）
+
+• 社區NPC/加路蘭速寫：ART100（+100金幣）
+
+• 小野柳DIY插旗完成：DIY200（+200金幣）
+
+• SUP上岸結算碼：SUP100（+100金幣） / 抓包敵隊：CATCH50（+50金幣）
+
+
+🧩實境解謎
+
+
+🎒寶物兌換
+
+
+🏄‍♂️SUP副本
+
+
+📜結業證書
+
+
+❓ 玩法說明
+載入中...
+我知道了！
+
+const puzzlesData = [
+{
+id: 1,
+station: "第一站｜富山漁業資源保育區",
+title: "潮間帶的清道夫密碼",
+riddle: "走進潮間帶步道觀察解說牌與礁岩區，有一種身體黑黑軟軟、會把沙子吞進去過濾有機物再排出乾淨沙子的生物，牠叫什麼名字？（2個字）",
+answers: ["海參"],
+help: "【第一站玩法】
+1. 實地走訪潮間帶並聆聽導覽員解說。
+2. 輸入謎題答案解鎖密令。
+3. 拍下 3 種潮間帶生物給領隊確認，即可獲得金幣兌換碼！",
+lore: "【富山潮間帶生態】海參被稱為「海底清道夫」，能淨化海底沉積物；在保育區內請遵守「只拍照、不觸摸、不帶走」的無痕海洋原則。",
+staffTask: "請出示此解鎖畫面＋手機拍攝的「3張潮間帶生物照」給領隊，索取金幣兌換碼！"
+},
+{
+id: 2,
+station: "第二站｜富岡漁港拍賣場",
+title: "永續海鮮的選擇題",
+riddle: "來到富岡漁港認識「底食原則」（優先食用食物鏈底層、資源量充足的在地當季魚種）。請問每年春夏隨黑潮來到臺東、體色金黃鮮豔的洄游魚類叫什麼？（3個字）",
+answers: ["鬼頭刀"],
+help: "【第二站玩法】
+1. 參與富岡漁港拍賣場食魚教育與喊魚體驗。
+2. 輸入永續魚種名稱解鎖密令。
+3. 至合作店家（如魚丸店、伴手禮鋪）出示畫面，可領取「50元折價券兌換碼」！",
+lore: "【永續海鮮與喊魚文化】鬼頭刀成長快、族群恢復力強，是國際認可的永續海鮮；購買在地現流漁獲也能大幅減少冷凍運輸的碳足跡。",
+staffTask: "請前往富岡合作店家（魚丸店/特產行）出示此畫面，向老闆索取「50元折價券兌換碼」！"
+},
+{
+id: 3,
+station: "第三站｜富岡社區 & 如意娘娘廟",
+title: "海神信仰與塑膠年限",
+riddle: "在富岡社區深處的宮廟供奉著守護討海人的海神「如意娘娘」，請問祂是哪一位神明？（2個字，或輸入寶特瓶在海中分解需幾年：450）",
+answers: ["媽祖", "450"],
+help: "【第三站玩法】
+1. 自由探索富岡社區巷弄與如意娘娘廟，尋找角落的「NFC 藏小人」獲得線索。
+2. 輸入謎底解鎖密令後，找廟口雜貨店 NPC 對暗號領取金幣碼。",
+lore: "【如意娘娘與海廢危機】如意娘娘（媽祖）數百年來守護漁民平安；如今海洋面臨新威脅——一支寶特瓶在海中需 450 年才分解，守護大海需要我們一起減塑。",
+staffTask: "請找廟口合作雜貨店（NPC）說出「如意娘娘保平安」，索取金幣兌換碼！"
+},
+{
+id: 4,
+station: "第四站｜加路蘭遊憩區",
+title: "大自然的循環藝術",
+riddle: "加路蘭海岸草地上矗立著許多大型裝置藝術，它們大多是颱風過後隨溪流沖到海邊、再被藝術家賦予新生命的哪種天然材料？（3個字）",
+answers: ["漂流木"],
+help: "【第四站玩法】
+1. 依據任務地圖上的「殘缺風景卡」尋找地景拍照。
+2. 輸入藝術創作材質解鎖密令。
+3. 完成「15分鐘海岸速寫」給關主確認，即可獲得金幣碼！",
+lore: "【加路蘭與漂流木循環】加路蘭（Kararuan）阿美族語意為「洗頭髮的地方」。在地藝術家善用天然漂流木創作，展現人與自然共生的永續美學。",
+staffTask: "請將任務小冊子上的「15分鐘海岸速寫」出示給關主，索取金幣兌換碼！"
+},
+{
+id: 5,
+station: "第五站｜杉原灣海水浴場",
+title: "海上冒險的安全暗號",
+riddle: "準備挑戰 SUP 立槳與海上打撈海廢前，為了確保在海上的浮力與安全，每位海盜船員下水前都必須穿戴好哪一項裝備？（3個字）",
+answers: ["救生衣"],
+help: "【第五站玩法】
+1. 解開安全謎題後，請切換至底部「SUP副本」分頁抽取占卜與禁忌卡。
+2. 領取防水手環並將手機鎖入防水袋，下水體驗！",
+lore: "【親海與淨海行動】杉原灣擁有美麗的沙灘與珊瑚礁海域。享受水上運動的同時，順手打撈海面漂流垃圾，就是最帥氣的海廢獵人！",
+staffTask: "已解鎖 SUP 副本資格！請點選下方導覽列「🏄‍♂️ SUP副本」抽取本場占卜卡！"
+},
+{
+id: 6,
+station: "第六站｜小野柳地質公園",
+title: "海蝕奇岩與海盜造船",
+riddle: "觀察小野柳海岸邊經過海水侵蝕與風化形成的奇特岩石，其中有一種表面布滿整齊裂紋、長得像一塊塊切好方塊的岩石叫什麼？（3個字）",
+answers: ["豆腐岩"],
+help: "【第六站玩法】
+1. 觀察海蝕地形並輸入岩石名稱。
+2. 利用淨灘收集的漂流木與廢漁網製作海盜船 DIY，並於合作店家插旗佔領，找領隊領取最終通關金幣！",
+lore: "【小野柳地質與海廢再生】小野柳因砂岩與頁岩互層，經地殼抬升與海浪侵蝕形成豆腐岩、蜂窩岩等奇景。將海廢再製成海盜船，讓垃圾變身為永續紀念品。",
+staffTask: "請出示完成製作的「漂流木海盜船」給領隊，索取最終通關金幣碼！"
+}
+];
+const defaultState = {
+teamName: "黑潮海賊團",
+gold: 0,
+solvedPuzzles: [],
+usedCodes: [],
+vouchers: [],
+buff: null,
+debuff: null
+};
+let state = JSON.parse(localStorage.getItem('pirateMysteryState')) || JSON.parse(JSON.stringify(defaultState));
+const helpTexts = {
+global: {
+title: "🧭 實境解謎總則",
+body: "1. 自由探索：抵達景點後觀察周遭環境與解說牌，在網頁輸入答案解開密令。
+2. 兌換獎勵：解開謎題或完成指定行動（如帶環保杯、拍照、DIY）後，找領隊或合作店家索取「兌換碼」，至【寶物兌換】分頁輸入即可獲得金幣與折價券！"
+},
+redeem: {
+title: "🔑 關主 / 店家兌換碼說明",
+body: "為結合實體互動與消費導流，金幣與折價券需由現場工作人員或合作店家確認任務後提供兌換碼。每組兌換碼限使用一次。"
+},
+voucher: {
+title: "🎟️ 合作店家折價券使用方式",
+body: "在富岡合作店家（魚丸店、特產行、飲品店）結帳時，請出示此電子折價券，由店員點擊「店家點擊核銷」按鈕蓋上已核銷印章，即可折抵 50 元消費！"
+},
+lore: {
+title: "📖 航海日誌圖鑑",
+body: "每解開一道現場實境謎題，系統會自動收錄當地的生態保育與永續文化知識，方便你隨時回顧。"
+},
+sup: {
+title: "🎲 SUP 占卜與禁忌規則",
+body: "因海上無法帶手機，採「線上抽卡＋實體手環」機制：
+• 金色手環（Buff）：主動技能，海上限用 1 次。
+• 紅色手環（Debuff）：海上禁忌，全程不可觸犯，若被敵隊抓包大喊『海神抓到了』，上岸將被搶走 50 金幣！"
+},
+supSettle: {
+title: "⚓ 上岸戰績結算",
+body: "隨行教練會用「潛水防水板」記錄打撈海廢袋數與抓包紀錄。上岸盥洗後，依教練板紀錄輸入結算碼同步金幣。"
+},
+cert: {
+title: "📜 結業證書說明",
+body: "旅程結束前勾選一項你願意在日常生活中落實的減塑行動，系統將彙整你的最終海盜金幣數生成專屬證書，長按螢幕截圖即可保存！"
+}
+};
+const buffCards = [
+{ name: "順風海流", desc: "大喊「海神助我！」，可指定敵隊 1 人幫你划槳 10 下。", band: "🟡 領取金色手環" },
+{ name: "海盜徵收", desc: "泳圈套中敵隊時，可將自己打撈的 1 袋海廢轉移到對方船上。", band: "🟡 領取金色手環" },
+{ name: "免死金牌", desc: "觸犯海上禁忌被抓包時，可抵銷一次扣分懲罰。", band: "🟡 領取金色手環" }
+];
+const debuffCards = [
+{ name: "海神禁語", desc: "下水期間絕對不能說出「水、累、怕」三個字。", band: "🔴 領取紅色手環" },
+{ name: "單膝跪姿", desc: "開賽前 5 分鐘必須保持跪姿划槳，不可站立。", band: "🔴 領取紅色手環" },
+{ name: "海盜口癖", desc: "每次跟隊友說話，句尾都必須加上「唷呵！」", band: "🔴 領取紅色手環" }
+];
+function saveState() {
+localStorage.setItem('pirateMysteryState', JSON.stringify(state));
+renderUI();
+}
+function renderUI() {
+document.getElementById('teamNameDisplay').innerText = state.teamName;
+document.getElementById('goldDisplay').innerText = state.gold;
+document.getElementById('solvedCountDisplay').innerText = state.solvedPuzzles.length;
+const validVouchers = state.vouchers.filter(v => !v.used).length;
+document.getElementById('voucherCountDisplay').innerText = validVouchers;
+const pContainer = document.getElementById('puzzleListContainer');
+pContainer.innerHTML = '';
+puzzlesData.forEach(p => {
+const isSolved = state.solvedPuzzles.includes(p.id);
+const card = document.createElement('div');
+card.className = card puzzle-card ${isSolved ? 'solved' : ''};
+let actionHTML = '';
+if (!isSolved) {
+actionHTML = <div class="input-group"> <input type="text" id="ansInput-${p.id}" placeholder="輸入現場找到的答案..."> <button class="btn" style="width:auto; margin-top:0; padding:0 16px;" onclick="checkPuzzle(${p.id})">解鎖</button> </div>;
+} else {
+actionHTML = <div class="unlocked-reward-box"> <strong>✅ 密令已解開！</strong><br> ${p.staffTask} </div>;
+}
+card.innerHTML = <div class="card-header"> <div> <div style="font-size:11px; color:#64748b;">${p.station}</div> <div class="card-title">${p.title} <span class="status-tag ${isSolved ? 'tag-open' : 'tag-lock'}">${isSolved ? '已解鎖' : '待解謎'}</span></div> </div> <button class="help-btn" onclick="showCustomHelp('${p.title}', '${p.help}')">?</button> </div> <div class="riddle-box">📜 <strong>謎題線索：</strong>${p.riddle}</div> ${actionHTML};
+pContainer.appendChild(card);
+});
+const vContainer = document.getElementById('voucherContainer');
+if (state.vouchers.length === 0) {
+vContainer.innerHTML = <p style="font-size:12px; color:#94a3b8; text-align:center; padding:12px 0;">尚未獲得折價券，解開謎題並找工作人員領取兌換碼吧！</p>;
+} else {
+vContainer.innerHTML = '';
+state.vouchers.forEach((v, idx) => {
+const div = document.createElement('div');
+div.className = voucher-item ${v.used ? 'used' : ''};
+div.innerHTML = <div style="font-weight:800; font-size:15px; color:#92400e;">🎟️ ${v.title}</div> <div style="font-size:12px; color:#78350f; margin:4px 0 8px 0;">${v.desc}</div> ${v.used  ?已核銷 :店員結帳點擊核銷};
+vContainer.appendChild(div);
+});
+}
+const lContainer = document.getElementById('loreContainer');
+if (state.solvedPuzzles.length === 0) {
+lContainer.innerHTML = <p style="font-size:12px; color:#94a3b8; text-align:center; padding:12px 0;">解開實境謎題後，海洋生態與在地文化知識將收錄於此。</p>;
+} else {
+lContainer.innerHTML = '';
+puzzlesData.filter(p => state.solvedPuzzles.includes(p.id)).forEach(p => {
+const item = document.createElement('div');
+item.style.cssText = "background:#f8fafc; border-left:3px solid #1d7874; padding:10px; border-radius:8px; margin-bottom:8px; font-size:12.5px; line-height:1.5; color:#334155;";
+item.innerText = p.lore;
+lContainer.appendChild(item);
+});
+}
+if (state.buff) {
+document.getElementById('buffName').innerText = state.buff.name;
+document.getElementById('buffDesc').innerText = state.buff.desc;
+document.getElementById('buffBand').innerText = state.buff.band;
+document.getElementById('buffBand').style.background = "#eab308";
+}
+if (state.debuff) {
+document.getElementById('debuffName').innerText = state.debuff.name;
+document.getElementById('debuffDesc').innerText = state.debuff.desc;
+document.getElementById('debuffBand').innerText = state.debuff.band;
+document.getElementById('debuffBand').style.background = "#ef4444";
+}
+document.getElementById('certTeamName').innerText = state.teamName;
+document.getElementById('certTotalScore').innerText = state.gold;
+}
+function checkPuzzle(id) {
+const puzzle = puzzlesData.find(p => p.id === id);
+const inputEl = document.getElementById(ansInput-${id});
+const userAns = inputEl.value.trim();
+if (!userAns) {
+alert("請先輸入你在現場找到的答案喔！");
+return;
+}
+const isMatch = puzzle.answers.some(ans => userAns.includes(ans));
+if (isMatch) {
+state.solvedPuzzles.push(id);
+saveState();
+alert(🎉 密碼正確！成功解開「${puzzle.title}」！\n\n請依照畫面指示找領隊或合作店家領取獎勵兌換碼！);
+} else {
+alert("❌ 暗號不對喔！再仔細觀察一下現場的解說牌或問問夥伴吧！");
+}
+}
+function redeemStaffCode() {
+const input = document.getElementById('staffCodeInput');
+const code = input.value.trim().toUpperCase();
+const rewards = {
+"ECO50": { type: "gold", val: 50, msg: "自備環保杯無塑獎勵！獲得 50 海盜金幣！" },
+"FISH150": { type: "gold", val: 150, msg: "富山潮間帶生態採集完成！獲得 150 海盜金幣！" },
+"ART100": { type: "gold", val: 100, msg: "社區文化/地景速寫任務達成！獲得 100 海盜金幣！" },
+"DIY200": { type: "gold", val: 200, msg: "小野柳海廢漂流木造船完成！獲得 200 海盜金幣！" },
+"TICKET50": {
+type: "voucher",
+title: "富岡合作店家 50 元伴手禮折價券",
+desc: "適用於富岡合作魚丸店、百花蜜、紅烏龍茶飲折抵消費（限用一次）。",
+msg: "獲得「富岡合作店家 50 元伴手禮折價券」一張！請於結帳時出示給店員核銷。"
+}
+};
+if (!rewards[code]) {
+alert("❌ 無效的兌換碼，請向現場工作人員或合作店家確認！");
+return;
+}
+if (state.usedCodes.includes(code)) {
+alert("⚠️ 這組兌換碼已經使用過囉！");
+return;
+}
+const item = rewards[code];
+if (item.type === "gold") {
+state.gold += item.val;
+} else if (item.type === "voucher") {
+state.vouchers.push({ title: item.title, desc: item.desc, used: false });
+}
+state.usedCodes.push(code);
+input.value = "";
+saveState();
+alert("🎉 " + item.msg);
+}
+function useVoucher(idx) {
+if (confirm("【店員確認】確定要核銷此張 50 元折價券嗎？核銷後將無法恢復！")) {
+state.vouchers[idx].used = true;
+saveState();
+}
+}
+function drawSupCards() {
+state.buff = buffCards[Math.floor(Math.random() * buffCards.length)];
+state.debuff = debuffCards[Math.floor(Math.random() * debuffCards.length)];
+saveState();
+alert("🎲 抽卡完成！請立即向隨行教練領取「金色手環」與「紅色手環」，並將手機鎖入防水袋！");
+}
+function settleSup() {
+const input = document.getElementById('supCodeInput');
+const code = input.value.trim().toUpperCase();
+const supCodes = {
+"SUP100": { val: 100, msg: "海上打撈海廢任務成功！獲得 100 海盜金幣！" },
+"CATCH50": { val: 50, msg: "成功抓包敵隊違反海上禁忌！搶奪 50 海盜金幣！" },
+"BUST50": { val: -50, msg: "觸犯海上禁忌被抓包！被敵隊搶走 50 海盜金幣！" }
+};
+if (!supCodes[code]) {
+alert("❌ 無效的教練結算碼！");
+return;
+}
+state.gold = Math.max(0, state.gold + supCodes[code].val);
+input.value = "";
+saveState();
+alert("⚓ " + supCodes[code].msg);
+}
+function switchTab(tabId, el) {
+document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+document.getElementById('tab-' + tabId).classList.add('active');
+el.classList.add('active');
+}
+function showHelp(key) {
+const info = helpTexts[key];
+document.getElementById('modalTitle').innerText = info.title;
+document.getElementById('modalBody').innerHTML = info.body;
+document.getElementById('helpModal').classList.add('show');
+}
+function showCustomHelp(title, body) {
+document.getElementById('modalTitle').innerText = "❓ " + title;
+document.getElementById('modalBody').innerHTML = body;
+document.getElementById('helpModal').classList.add('show');
+}
+function closeModal() {
+document.getElementById('helpModal').classList.remove('show');
+}
+function editTeamName() {
+const newName = prompt("請輸入你們的海盜船隊名稱：", state.teamName);
+if (newName && newName.trim() !== "") {
+state.teamName = newName.trim();
+saveState();
+}
+}
+function updateCert() {
+const val = document.getElementById('pledgeSelect').value;
+document.getElementById('certPledgeText').innerText = val;
+}
+function resetDemo() {
+if (confirm("確定要重置所有解謎進度、金幣與折價券（方便重新演示）嗎？")) {
+state = JSON.parse(JSON.stringify(defaultState));
+saveState();
+}
+}
+renderUI();!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
