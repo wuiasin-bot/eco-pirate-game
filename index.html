@@ -25,6 +25,179 @@
   .c-title { font-size: 15px; font-weight: bold; color: #0b2545; }
   .q-btn { width: 28px; height: 28px; border-radius: 50%; background: #e0f2fe; color: #134074; border: 1.5px solid #134074; font-weight: bold; cursor: pointer; flex-shrink: 0; }
   .riddle { background: #fdf8ee; border: 1px solid #e6d5b8; padding: 10px; border-radius: 8px; font-size: 13.5px; line-height: 1.5; margin-bottom: 10px; }
+  .input-area { display: flex; flex-direction: column; gap: 8px; }
+  input, select { display: block; width: 100%; padding: 12px; border: 2px solid #94a3b8; border-radius: 10px; font-size: 16px; background: #fff; color: #0f172a; }
+  input:focus { border-color: #134074; outline: none; }
+  .btn { display: block; width: 100%; padding: 11px; border: none; border-radius: 10px; background: #134074; color: white; font-weight: bold; font-size: 15px; cursor: pointer; }
+  .btn:active { opacity: 0.85; }
+  .btn-gold { background: #f4b942; color: #1e293b; }
+  .btn-teal { background: #1d7874; color: white; margin-top: 8px; }
+  .btn-red { background: #d9534f; color: white; margin-top: 8px; padding: 9px; font-size: 13px; }
+  .done-msg { background: #ecfdf5; border: 1px solid #6ee7b7; color: #065f46; padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.5; display: none; }
+  .card.solved .done-msg { display: block; }
+  .card.solved .input-area { display: none; }
+  .voucher { background: #fffbeb; border: 2px dashed #f59e0b; padding: 12px; border-radius: 10px; margin-top: 8px; }
+  .voucher.used { opacity: 0.6; border-color: #94a3b8; background: #f1f5f9; }
+  .sup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .fate { padding: 10px; border-radius: 10px; text-align: center; border: 2px solid #cbd5e1; font-size: 12px; }
+  .cert { background: #fef3c7; border: 4px double #d97706; border-radius: 14px; padding: 18px; text-align: center; margin-top: 10px; }
+  nav { position: fixed; bottom: 0; width: 100%; max-width: 430px; background: white; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #cbd5e1; padding: 6px 0; z-index: 20; }
+  nav button { background: none; border: none; font-size: 11px; color: #64748b; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+  nav button.active { color: #134074; font-weight: bold; }
+  nav span { font-size: 20px; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.65); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50; }
+  .modal.show { display: flex; }
+  .modal-box { background: white; padding: 20px; border-radius: 14px; max-width: 350px; width: 100%; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div class="top-row">
+      <div class="team-btn" onclick="openTeamModal()">🏴‍☠️ <span id="teamTxt">黑潮海賊團</span> ✏️</div>
+      <button class="reset-btn" onclick="resetAll()">重置進度</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="goldTxt">0</b><span>💰 海盜金幣</span></div>
+      <div class="stat"><b id="solveTxt">0/6</b><span>🧩 解開密令</span></div>
+      <div class="stat"><b id="vouchTxt">0</b><span>🎟️ 可用折價券</span></div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 分頁 1：實境解謎 -->
+    <div id="p1" class="tab-page active">
+      <div class="card" style="background:#f0f9ff;">
+        <div class="c-head">
+          <div class="c-title">🧭 實境解謎總則（自由探索）</div>
+          <button class="q-btn" onclick="msg('❓ 玩法說明','自由探索各景點並觀察解說牌，輸入正確答案解開密令後，找領隊或合作店家領取「兌換碼」，即可換取金幣與折價券！')">?</button>
+        </div>
+        <p style="font-size:12.5px; color:#0369a1;">觀察現場環境輸入答案，解鎖後找工作人員或店家領取兌換碼！</p>
+      </div>
+
+      <div class="card" id="qcard-1">
+        <div class="c-head">
+          <div class="c-title">1. 富山護漁區｜潮間帶清道夫</div>
+          <button class="q-btn" onclick="msg('❓ 第一站玩法','走訪潮間帶觀察生態，輸入謎底解鎖後，拍下 3 種潮間帶生物給領隊確認，即可領取金幣兌換碼！')">?</button>
+        </div>
+        <div class="riddle">謎題：身體黑黑軟軟、會把沙子吞進去過濾有機物再排出乾淨沙子的生物叫什麼？（2個字）</div>
+        <div class="input-area">
+          <input type="text" id="ans-1" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(1, ['海參'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！海參是海底清道夫。<br>👉 請出示此畫面＋<strong>3張潮間帶生物照</strong>給領隊，索取金幣兌換碼！</div>
+      </div>
+
+      <div class="card" id="qcard-2">
+        <div class="c-head">
+          <div class="c-title">2. 富岡漁港｜永續海鮮選擇題</div>
+          <button class="q-btn" onclick="msg('❓ 第二站玩法','參與拍賣場食魚教育，輸入永續魚種名稱後，至富岡合作店家出示畫面，可領取 50 元伴手禮折價券兌換碼！')">?</button>
+        </div>
+        <div class="riddle">謎題：符合「底食原則」、每年春夏隨黑潮來到臺東、體色金黃鮮豔的洄游魚類叫什麼？（3個字）</div>
+        <div class="input-area">
+          <input type="text" id="ans-2" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(2, ['鬼頭刀'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！鬼頭刀成長快、族群充足是永續海鮮。<br>👉 請前往<strong>富岡合作店家</strong>出示畫面，向老闆索取「折價券兌換碼」！</div>
+      </div>
+
+      <div class="card" id="qcard-3">
+        <div class="c-head">
+          <div class="c-title">3. 富岡社區｜海神與塑膠年限</div>
+          <button class="q-btn" onclick="msg('❓ 第三站玩法','探索社區與如意娘娘廟尋找 NFC 藏小人，輸入謎底後找廟口雜貨店 NPC 對暗號領取金幣碼。')">?</button>
+        </div>
+        <div class="riddle">謎題：富岡宮廟供奉守護討海人的海神「如意娘娘」是哪位神明？（2個字，或輸入寶特瓶海中分解年限：450）</div>
+        <div class="input-area">
+          <input type="text" id="ans-3" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(3, ['媽祖','450'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！一支寶特瓶在海中需 450 年才分解。<br>👉 請找<strong>廟口雜貨店 NPC</strong> 說出「如意娘娘保平安」領取兌換碼！</div>
+      </div>
+
+      <div class="card" id="qcard-4">
+        <div class="c-head">
+          <div class="c-title">4. 加路蘭｜大自然的循環藝術</div>
+          <button class="q-btn" onclick="msg('❓ 第四站玩法','依據殘缺線索卡找地景拍照，輸入創作材質解鎖，完成 15 分鐘海岸速寫給關主確認即可領碼。')">?</button>
+        </div>
+        <div class="riddle">謎題：加路蘭草地上的大型裝置藝術，大多是颱風過後隨溪流沖到海邊的哪種天然材料？（3個字）</div>
+        <div class="input-area">
+          <input type="text" id="ans-4" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(4, ['漂流木'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！在地藝術家將天然漂流木轉化為永續地景。<br>👉 請出示<strong>15分鐘海岸速寫</strong>給關主領取兌換碼！</div>
+      </div>
+
+      <div class="card" id="qcard-5">
+        <div class="c-head">
+          <div class="c-title">5. 杉原灣｜海上安全暗號</div>
+          <button class="q-btn" onclick="msg('❓ 第五站玩法','解開安全謎題後，切換到底部「SUP副本」分頁抽占卜卡，戴上防水手環並將手機鎖入防水袋下水。')">?</button>
+        </div>
+        <div class="riddle">謎題：挑戰 SUP 立槳與打撈海廢前，每位船員下水前都必須穿戴好哪一項安全裝備？（3個字）</div>
+        <div class="input-area">
+          <input type="text" id="ans-5" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(5, ['救生衣'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！請點選下方導覽列<strong>「🏄‍♂️ SUP副本」</strong>抽取你的海上占卜與禁忌卡！</div>
+      </div>
+
+      <div class="card" id="qcard-6">
+        <div class="c-head">
+          <div class="c-title">6. 小野柳｜海蝕奇岩與造船</div>
+          <button class="q-btn" onclick="msg('❓ 第六站玩法','觀察海蝕地形輸入岩石名稱，完成漂流木海盜船 DIY 並於合作店家插旗，找領隊領取最終通關金幣！')">?</button>
+        </div>
+        <div class="riddle">謎題：小野柳海岸邊表面布滿整齊裂紋、長得像一塊塊切好方塊的海蝕岩石叫什麼？（3個字）</div>
+        <div class="input-area">
+          <input type="text" id="ans-6" placeholder="點此輸入答案...">
+          <button class="btn" onclick="check(6, ['豆腐岩'])">解鎖密令</button>
+        </div>
+        <div class="done-msg">✅ 密令解開！<br>👉 請出示完成的<strong>漂流木海盜船 DIY</strong> 給領隊，索取最終通關金幣碼！</div>
+      </div>
+    </div>
+
+    <!-- 分頁 2：寶物兌換 -->
+    <div id="p2" class="tab-page">
+      <div class="card">
+        <div class="c-head">
+          <div class="c-title">🔑 輸入關主 / 店家兌換碼</div>
+          <button class="q-btn" onclick="msg('❓ 兌換碼說明','完成現場任務（如帶環保杯、拍照、DIY、店家互動）後，向工作人員或店家索取兌換碼輸入即可獲得金幣或折價券。')">?</button>
+        </div>
+        <div class="input-area">
+          <input type="text" id="codeInput" placeholder="點此輸入兌換碼 (如 ECO50)">
+          <button class="btn btn-gold" onclick="useCode()">領取獎勵</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="c-head">
+          <div class="c-title">🎟️ 我的合作店家折價券</div>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>黑潮海盜的淨海密令｜實境解謎</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: #0f172a; display: flex; justify-content: center; min-height: 100vh; color: #1e293b; }
+  .app { width: 100%; max-width: 430px; background: #eef2f6; min-height: 100vh; padding-bottom: 85px; position: relative; }
+  header { background: linear-gradient(135deg, #0b2545, #134074); color: white; padding: 16px; border-radius: 0 0 20px 20px; }
+  .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .team-btn { background: rgba(255,255,255,0.18); padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; cursor: pointer; }
+  .reset-btn { background: #d9534f; border: none; color: white; padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .stat { background: rgba(255,255,255,0.12); padding: 8px 4px; border-radius: 12px; }
+  .stat b { font-size: 18px; color: #f4b942; display: block; }
+  .stat span { font-size: 11px; }
+  main { padding: 14px; }
+  .tab-page { display: none; }
+  .tab-page.active { display: block; }
+  .card { background: white; border-radius: 14px; padding: 14px; margin-bottom: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); border-left: 5px solid #134074; }
+  .card.solved { border-left-color: #1d7874; background: #f8fafc; }
+  .c-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .c-title { font-size: 15px; font-weight: bold; color: #0b2545; }
+  .q-btn { width: 28px; height: 28px; border-radius: 50%; background: #e0f2fe; color: #134074; border: 1.5px solid #134074; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+  .riddle { background: #fdf8ee; border: 1px solid #e6d5b8; padding: 10px; border-radius: 8px; font-size: 13.5px; line-height: 1.5; margin-bottom: 10px; }
   
   /* 修正輸入框與按鈕為上下排列，確保手機寬大好輸入 */
   .input-area { display: flex; flex-direction: column; gap: 8px; }
